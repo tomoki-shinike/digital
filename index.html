@@ -126,7 +126,7 @@
 
   .hero__nav {
     position: relative;
-    z-index: 2;
+    z-index: 32;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -170,6 +170,76 @@
     white-space: nowrap;
   }
   .hero__nav-links a:hover, .hero__nav-links a:focus-visible { color: var(--paper); }
+
+  /* ===================== HAMBURGER MENU (mobile) ===================== */
+  .hero__menu-btn {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    border: 1px solid rgba(247,245,240,0.18);
+    background: rgba(8,12,22,0.4);
+    color: var(--paper);
+    cursor: pointer;
+    flex-shrink: 0;
+    position: relative;
+    z-index: 31;
+  }
+  .hero__menu-btn svg {
+    width: 18px; height: 18px;
+    stroke: var(--paper);
+    stroke-width: 2;
+    fill: none;
+    stroke-linecap: round;
+  }
+  .hero__menu-btn .icon-close { display: none; }
+  .hero__menu-btn.is-open .icon-open { display: none; }
+  .hero__menu-btn.is-open .icon-close { display: block; }
+
+  .hero__menu-panel {
+    position: fixed;
+    inset: 0;
+    z-index: 30;
+    background: rgba(8,12,22,0.97);
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 28px;
+    padding: 0 clamp(24px, 8vw, 72px);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-8px);
+    transition: opacity 0.25s ease, transform 0.25s ease, visibility 0.25s;
+  }
+  .hero__menu-panel.is-open {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+  }
+  .hero__menu-panel a {
+    font-family: "Noto Serif JP", serif;
+    font-size: 24px;
+    font-weight: 600;
+    color: var(--paper);
+    text-decoration: none;
+    letter-spacing: 0.06em;
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+  }
+  .hero__menu-panel a .menu-index {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 13px;
+    color: var(--gold);
+  }
+
+  @media (max-width: 760px) {
+    .hero__nav-links { display: none; }
+    .hero__menu-btn { display: flex; }
+  }
 
   .hero__body {
     position: relative;
@@ -796,6 +866,43 @@
     border-top: 1px solid var(--metal-line);
   }
 
+  @media (max-width: 640px) {
+    table.budget thead { display: none; }
+    table.budget, table.budget tbody, table.budget tr, table.budget td {
+      display: block;
+      width: 100%;
+    }
+    table.budget tr {
+      padding: 16px 18px 18px;
+      border-bottom: 1px solid var(--metal-line);
+    }
+    table.budget tr:last-child { border-bottom: none; }
+    table.budget td {
+      padding: 0;
+      border-bottom: none;
+    }
+    table.budget td:first-child {
+      margin-bottom: 8px;
+    }
+    table.budget td.num {
+      text-align: left;
+      margin-top: 10px;
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--ink);
+    }
+    table.budget td.num::before {
+      content: "概算価格: ";
+      font-family: "Noto Sans JP", sans-serif;
+      font-weight: 500;
+      font-size: 11px;
+      letter-spacing: 0.06em;
+      color: var(--metal);
+      display: block;
+      margin-bottom: 2px;
+    }
+  }
+
   .budget-footnote {
     margin-top: 18px;
     font-size: 12px;
@@ -1050,7 +1157,19 @@
       <a href="#budget">予算案</a>
       <a href="#roadmap">その他の機器</a>
     </div>
+    <button type="button" class="hero__menu-btn" id="menuBtn" aria-label="メニューを開く" aria-expanded="false">
+      <svg class="icon-open" viewBox="0 0 24 24"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg>
+      <svg class="icon-close" viewBox="0 0 24 24"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg>
+    </button>
   </nav>
+
+  <div class="hero__menu-panel" id="menuPanel" aria-hidden="true">
+    <a href="#system"><span class="menu-index">01</span>機器構成</a>
+    <a href="#platform"><span class="menu-index">02</span>配信プラットフォーム</a>
+    <a href="#viewing"><span class="menu-index">03</span>視聴管理</a>
+    <a href="#budget"><span class="menu-index">04</span>予算案</a>
+    <a href="#roadmap"><span class="menu-index">05</span>その他の機器</a>
+  </div>
 
   <div class="hero__body">
     <div class="hero__eyebrow">Hybrid Training &amp; Conference A/V Plan</div>
@@ -1434,6 +1553,43 @@
       ripple.addEventListener('animationend', function () {
         ripple.remove();
       });
+    });
+  })();
+</script>
+
+<script>
+  (function () {
+    var menuBtn = document.getElementById('menuBtn');
+    var menuPanel = document.getElementById('menuPanel');
+
+    function closeMenu() {
+      menuBtn.classList.remove('is-open');
+      menuBtn.setAttribute('aria-expanded', 'false');
+      menuBtn.setAttribute('aria-label', 'メニューを開く');
+      menuPanel.classList.remove('is-open');
+      menuPanel.setAttribute('aria-hidden', 'true');
+      document.body.style.overflow = '';
+    }
+
+    function openMenu() {
+      menuBtn.classList.add('is-open');
+      menuBtn.setAttribute('aria-expanded', 'true');
+      menuBtn.setAttribute('aria-label', 'メニューを閉じる');
+      menuPanel.classList.add('is-open');
+      menuPanel.setAttribute('aria-hidden', 'false');
+      document.body.style.overflow = 'hidden';
+    }
+
+    menuBtn.addEventListener('click', function () {
+      if (menuPanel.classList.contains('is-open')) {
+        closeMenu();
+      } else {
+        openMenu();
+      }
+    });
+
+    menuPanel.querySelectorAll('a').forEach(function (link) {
+      link.addEventListener('click', closeMenu);
     });
   })();
 </script>
